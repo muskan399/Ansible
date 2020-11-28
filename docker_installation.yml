@@ -1,0 +1,13 @@
+- hosts: all
+  tasks:
+         - yum_repository:
+                 baseurl: "https://download.docker.com/linux/centos/7/x86_64/stable/"
+                 name: "docker"
+                 description: "Softwares for Docker"
+                 gpgcheck: no
+         - command:
+                 cmd: "yum install docker-ce --nobest -y"
+         - service:
+                 name: "docker"
+                 state: started
+

@@ -1,0 +1,42 @@
+- hosts: all
+  tasks:
+  - file:
+         path: "/dvd"
+         state: directory
+  - mount:
+         path: "/dvd"
+         src: "/dev/cdrom"
+         state: mounted
+         fstype: "iso9660"
+  - yum_repository:
+         name: "dvd1"
+         baseurl: "/dvd/AppStream"
+         gpgcheck: no
+         description: "Softwares from AppStream"
+         
+  - yum_repository:
+         name: "dvd2"
+         baseurl: "/dvd/BaseOS"
+         gpgcheck: no
+         description: "Softwares from BaseOS"
+  - package:
+          name: "httpd"
+          state: present
+  - copy:
+          src: "/index.html"
+          dest: "/var/www/html"
+  - service:
+          name: "httpd"
+          state: started
+  - firewalld:
+          port: "80/tcp"
+          state: enabled
+          permanent: yes
+          immediate: yes
+       
+       
+       
+       
+
+
+
