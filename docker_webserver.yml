@@ -1,0 +1,43 @@
+- hosts: all
+  tasks:
+         - yum_repository:
+                 baseurl: "https://download.docker.com/linux/centos/7/x86_64/stable/"
+                 name: "docker"
+                 description: "Softwares for Docker"
+                 gpgcheck: no
+         - command:
+                 cmd: "yum install docker-ce --nobest -y"
+         - service:
+                 name: "docker"
+                 state: started
+         - package:
+                 name: "python3"
+                 state: present
+         - pip:
+                 name: "docker-py"
+         - name: Pulling Docker image
+           docker_image:
+                 name: httpd
+                 source: pull
+         - docker_volume:
+                 name: "volume1"
+         - name: Launching a container using httpd image
+           docker_container:
+                   name: httpd-os1
+                   image: httpd
+                   exposed_ports: 80
+                   published_ports: 8081:80
+                   volumes: "volume1:/usr/local/apache2/htdocs/"
+         - name: Copying file
+           copy:
+                   src: "/index.html"
+                   dest: "/var/lib/docker/volumes/volume1/_data"
+
+
+         - name: Allowing traffic on port 8080
+           firewalld:
+                   port: "8081/tcp"
+                   state: enabled
+                   permanent: yes
+                 
+    
