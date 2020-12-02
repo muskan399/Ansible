@@ -1,4 +1,20 @@
 - hosts: all
+  vars_prompt:
+          - name: container_name
+            private: no
+            prompt: Enter the container name
+
+          - name: image_name
+            private: no
+            prompt: Enter the docker image
+          - name: file_location
+            private: no
+            prompt: Enter the location where your HTML file is located
+          - name: port_number_docker_host
+            private: no
+            prompt: Enter the port you want to expose of docker host
+      
+
   tasks:
          - yum_repository:
                  baseurl: "https://download.docker.com/linux/centos/7/x86_64/stable/"
@@ -17,26 +33,26 @@
                  name: "docker-py"
          - name: Pulling Docker image
            docker_image:
-                 name: httpd
+                 name: "{{image_name}}"
                  source: pull
          - docker_volume:
                  name: "volume1"
          - name: Launching a container using httpd image
            docker_container:
-                   name: httpd-os1
-                   image: httpd
+                   name: "{{container_name}}"
+                   image: "{{image_name}}"
                    exposed_ports: 80
-                   published_ports: 8081:80
+                   published_ports: "{{port_number_docker_host}}:80"
                    volumes: "volume1:/usr/local/apache2/htdocs/"
          - name: Copying file
            copy:
-                   src: "/index.html"
+                   src: "{{file_location}}"
                    dest: "/var/lib/docker/volumes/volume1/_data"
 
 
          - name: Allowing traffic on port 8080
            firewalld:
-                   port: "8081/tcp"
+                   port: "{{port_number_docker_host}}/tcp"
                    state: enabled
                    permanent: yes
                  
